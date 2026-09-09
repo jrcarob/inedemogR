@@ -1,15 +1,19 @@
-url: https://jrcarob.github.io/inedemogR/
+url: https://carobarrera.com/inedemogR
 
 template:
   params:
     bootswatch: spacelab
+
+authors:
+  J. R. Caro-Barrera:
+    href: https://carobarrera.com
 
 footer:
   structure:
     left: developed_by
     right: built_with
   components:
-    developed_by: "Developed by José Rafael Caro-Barrera · September 2026."
+    developed_by: "Developed by [José Rafael Caro-Barrera](https://carobarrera.com) · September 2026."
 
 navbar:
   structure:
