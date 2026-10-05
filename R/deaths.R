@@ -138,6 +138,9 @@ clean_deaths_provinces_age <- function(tidy_df) {
     dplyr::select("ine_code", "age", "sex", "year", "deaths") |>
     tidyr::pivot_wider(names_from = "sex", values_from = "deaths", values_fn = sum) |>
     dplyr::rename_with(stringr::str_to_lower, dplyr::any_of(c("Female", "Male", "Total")))
+  # A sex with no published cell at all in the request still needs a column,
+  # so its values can be recovered from Total or kept as missing.
+  for (s in setdiff(c("female", "male", "total"), names(wide))) wide[[s]] <- NA_real_
 
   # INE suppresses individual sex-specific counts for small-cell privacy but
   # still publishes the cell's Total; when exactly one of female/male is
@@ -161,6 +164,7 @@ clean_deaths_provinces_age <- function(tidy_df) {
       )
   }
 
+  wide$total <- dplyr::coalesce(wide$total, wide$female + wide$male)
   wide <- reconcile_total(wide, "province-age-year")
 
   wide |>
@@ -343,9 +347,13 @@ validate_deaths_age <- function(df) {
 #'   slowest. Set `FALSE` to always hit the network.
 #' @param force Logical (default `FALSE`). If `TRUE`, ignore any existing
 #'   cache and re-fetch from INE, refreshing the cache afterwards.
-#' @param cache_dir Directory for cached data. Default `NULL` means no
-#'   persistent caching (each call re-fetches from INE). Pass a directory,
-#'   e.g. `tools::R_user_dir("inedemogR", "cache")`, to enable caching.
+#' @param cache_dir Directory for cached data. The default `NULL` caches
+#'   in a per-session directory under `tempdir()`: repeated calls in the same
+#'   session reuse the first download, but nothing persists afterwards. Pass a
+#'   directory, e.g. `tools::R_user_dir("inedemogR", "cache")`, for a cache
+#'   that persists across sessions. A cache stores the parsed result as
+#'   `.rds`; refresh it with `force = TRUE`. Results carry a `provenance`
+#'   attribute (request, retrieval time in UTC, API, package version).
 #' @return `list(data_provinces, data_national, qc, qc_age)`:
 #'   `data_provinces` is age-specific (`ine_code`, `nuts3_code`,
 #'   `nuts2_code`, `province_name`, `year`, `age`, `female`, `male`,

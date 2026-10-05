@@ -13,8 +13,9 @@ validate_death_rates(mx_df)
 \verb{list(passed = logical, issues = named list of flagged tibbles)}.
 }
 \description{
-Checks: no negative/NA/infinite rates; no rates >= 1 for ages below 90
-(flagged for review, not treated as a hard error).
+Fails on negative, missing, or infinite rates; on rates >= 1 below age
+90; and on any province-year without unique, complete single ages
+0-100.
 }
 \examples{
 deaths <- tibble::tibble(

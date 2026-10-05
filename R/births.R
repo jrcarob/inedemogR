@@ -192,9 +192,13 @@ validate_births <- function(df) {
 #'   network.
 #' @param force Logical (default `FALSE`). If `TRUE`, ignore any existing
 #'   cache and re-fetch from INE, refreshing the cache afterwards.
-#' @param cache_dir Directory for cached data. Default `NULL` means no
-#'   persistent caching (each call re-fetches from INE). Pass a directory,
-#'   e.g. `tools::R_user_dir("inedemogR", "cache")`, to enable caching.
+#' @param cache_dir Directory for cached data. The default `NULL` caches
+#'   in a per-session directory under `tempdir()`: repeated calls in the same
+#'   session reuse the first download, but nothing persists afterwards. Pass a
+#'   directory, e.g. `tools::R_user_dir("inedemogR", "cache")`, for a cache
+#'   that persists across sessions. A cache stores the parsed result as
+#'   `.rds`; refresh it with `force = TRUE`. Results carry a `provenance`
+#'   attribute (request, retrieval time in UTC, API, package version).
 #' @return `list(data, qc)`: `data` is a tibble with columns `ine_code`,
 #'   `nuts3_code`, `nuts2_code`, `province_name`, `year`, `female`, `male`,
 #'   `total`; `qc` is the output of [validate_births()].
@@ -410,9 +414,13 @@ validate_births_by_age <- function(df) {
 #'   than [get_ine_births()]'s; caching (see `use_cache`) matters more here.
 #' @param use_cache Logical (default `TRUE`). See [get_ine_births()].
 #' @param force Logical (default `FALSE`). See [get_ine_births()].
-#' @param cache_dir Directory for cached data. Default `NULL` means no
-#'   persistent caching (each call re-fetches from INE). Pass a directory,
-#'   e.g. `tools::R_user_dir("inedemogR", "cache")`, to enable caching.
+#' @param cache_dir Directory for cached data. The default `NULL` caches
+#'   in a per-session directory under `tempdir()`: repeated calls in the same
+#'   session reuse the first download, but nothing persists afterwards. Pass a
+#'   directory, e.g. `tools::R_user_dir("inedemogR", "cache")`, for a cache
+#'   that persists across sessions. A cache stores the parsed result as
+#'   `.rds`; refresh it with `force = TRUE`. Results carry a `provenance`
+#'   attribute (request, retrieval time in UTC, API, package version).
 #' @return `list(data, qc)`: `data` is a tibble with columns `ine_code`,
 #'   `nuts3_code`, `nuts2_code`, `province_name`, `year`, `age` (integer,
 #'   `NA` for the `under15` group), `age_group` (character: `"under15"`,

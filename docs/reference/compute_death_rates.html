@@ -19,7 +19,7 @@ both deaths and exposure, per SHMD Protocol Section 12, Step 5."><meta property=
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">inedemogR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
       </span>
     </div>
 
@@ -90,9 +90,27 @@ both <code>deaths</code> and <code>exposure</code>, per SHMD Protocol Section 12
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>list(mx_1x1, mx_5x1, asdr, qc)</code>, each a tibble with <code>nuts3_code</code>,
-<code>province_name</code> plus the rate columns; <code>qc</code> is the output of
-<code><a href="validate_death_rates.html">validate_death_rates()</a></code> run on <code>mx_1x1</code>.</p>
+    <p><code>list(mx_1x1, mx_5x1, asdr, qc)</code>:</p><ul><li><p><code>mx_1x1</code>: <code>nuts3_code</code>, <code>province_name</code>, <code>year</code>, <code>age</code>, central death
+rates <code>mx_female</code>, <code>mx_male</code>, <code>mx_total</code>, and the deaths (<code>d_*</code>) and
+exposures (<code>e_*</code>) they come from (needed by <code><a href="build_life_tables.html">build_life_tables()</a></code>).</p></li>
+<li><p><code>mx_5x1</code>: the same by five-year group (<code>age_group</code>), pooled as
+sum(deaths) / sum(exposure).</p></li>
+<li><p><code>asdr</code>: age-standardised death rates per 100,000 (European Standard
+Population 2013; the 95+ weight of 200 is spread evenly over ages
+95-99 and 100+). <code>NA</code> unless all ages 0-100 have finite rates.</p></li>
+<li><p><code>qc</code>: output of <code><a href="validate_death_rates.html">validate_death_rates()</a></code> on <code>mx_1x1</code>.</p></li>
+</ul></div>
+    <div id="missing-data">
+    <h2>Missing data</h2>
+
+
+<p>INE's age-specific deaths table omits cells with zero deaths, so an age
+missing from a province-year that is otherwise present is treated as a
+structural zero. An explicit <code>NA</code> count (unavailable or suppressed and not
+recoverable) is kept as <code>NA</code> and propagates to the rate, the grouped rate,
+and the ASDR, and makes <code><a href="validate_death_rates.html">validate_death_rates()</a></code> fail. A province-year with
+exposure but no death records at all is unavailable, not zero: it is
+excluded with a warning.</p>
     </div>
 
     <div id="ref-examples">
@@ -106,18 +124,21 @@ both <code>deaths</code> and <code>exposure</code>, per SHMD Protocol Section 12
 <span class="r-in"><span>  age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, female <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">490</span><span class="op">)</span>, male <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">510</span>, <span class="fl">505</span><span class="op">)</span>, total <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1010</span>, <span class="fl">995</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">rates</span> <span class="op">&lt;-</span> <span class="fu">compute_death_rates</span><span class="op">(</span><span class="va">deaths</span>, <span class="va">exposure</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> All death rate validation checks passed.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Death rate validation flagged 1 issue category: incomplete_age_coverage.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Validation issues detected in death rates (see returned $qc$issues).</span>
 <span class="r-in"><span><span class="va">rates</span><span class="op">$</span><span class="va">mx_1x1</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 7</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nuts3_code province_name  year   age mx_female mx_male mx_total</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> ES111      A Coruna       <span style="text-decoration: underline;">2</span>023     0     0.002 0.001<span style="text-decoration: underline;">96</span>  0.001<span style="text-decoration: underline;">98</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> ES111      A Coruna       <span style="text-decoration: underline;">2</span>023     1     0     0.001<span style="text-decoration: underline;">98</span>  0.001<span style="text-decoration: underline;">01</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 13</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nuts3_code province_name  year   age mx_female mx_male mx_total d_female</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> ES111      A Coruna       <span style="text-decoration: underline;">2</span>023     0     0.002 0.001<span style="text-decoration: underline;">96</span>  0.001<span style="text-decoration: underline;">98</span>        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> ES111      A Coruna       <span style="text-decoration: underline;">2</span>023     1     0     0.001<span style="text-decoration: underline;">98</span>  0.001<span style="text-decoration: underline;">01</span>        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 5 more variables: d_male &lt;dbl&gt;, d_total &lt;dbl&gt;, e_female &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   e_male &lt;dbl&gt;, e_total &lt;dbl&gt;</span></span>
 <span class="r-in"><span><span class="va">rates</span><span class="op">$</span><span class="va">asdr</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 6</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   nuts3_code province_name  year asdr_female asdr_male asdr_total</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> ES111      A Coruna       <span style="text-decoration: underline;">2</span>023           2      3.94       2.99</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> ES111      A Coruna       <span style="text-decoration: underline;">2</span>023          <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span></span>
 </code></pre></div>
     </div>
   </div>

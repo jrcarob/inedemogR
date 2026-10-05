@@ -1,0 +1,10 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+examples
+examples/examples.R
+inedemogR.Rcheck/
+inedemogR*.tar.gz
+inedemogR*.tgz
+.claude

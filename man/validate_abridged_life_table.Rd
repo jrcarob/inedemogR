@@ -13,8 +13,11 @@ validate_abridged_life_table(alt)
 \verb{list(passed = logical, issues = named list of flagged tibbles)}.
 }
 \description{
-Checks: \code{lx} strictly non-increasing by age group; \code{Lx > 0}; \code{ex > 0}; \code{qx} in [0, 1]. Mirrors \code{\link[=validate_life_table]{validate_life_table()}} for the abridged
-(5-year age group) case.
+Fails when any column is missing or non-finite, \code{lx} increases, \code{Lx}
+or \code{ex} is not positive, \code{qx} lies outside [0, 1], or the identity
+\code{mx = dx / Lx} fails in a closed interval from age 5 upward (the 0-4
+group is built from single-year rates, so its grouped \code{mx} need not
+satisfy it exactly).
 }
 \examples{
 mx1 <- data.frame(age = 0:4, mx = c(0.004, 0.0003, 0.0002, 0.0002, 0.0002))

@@ -25,7 +25,7 @@ and life_expectancy_summary() applied afterwards."><meta property="og:image" con
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">inedemogR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
       </span>
     </div>
 
@@ -94,10 +94,8 @@ and <code><a href="life_expectancy_summary.html">life_expectancy_summary()</a></
 
 <dl><dt id="arg-mx-df">mx_df<a class="anchor" aria-label="anchor" href="#arg-mx-df"></a></dt>
 <dd><p>Output of the <code>mx_1x1</code> element of <code><a href="compute_death_rates.html">compute_death_rates()</a></code>
-(columns <code>nuts3_code</code>, <code>province_name</code>, <code>year</code>, <code>age</code>, <code>mx_female</code>,
-<code>mx_male</code>, <code>mx_total</code>). All three <code>mx_*</code> columns must be present
-regardless of <code>sex</code>, since the underlying life-table construction
-builds all three sex tables together.</p></dd>
+(rates <code>mx_*</code>, deaths <code>d_*</code>, and exposures <code>e_*</code> for all three sexes,
+which <code><a href="build_life_tables.html">build_life_tables()</a></code> needs for Kannisto smoothing).</p></dd>
 
 
 <dt id="arg-province">province<a class="anchor" aria-label="anchor" href="#arg-province"></a></dt>
@@ -119,23 +117,21 @@ province.</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A Gompertz-like mx curve spanning to a realistic terminal age (100):</span></span></span>
-<span class="r-in"><span><span class="co"># build_life_table()'s open-interval formula at the terminal age</span></span></span>
-<span class="r-in"><span><span class="co"># (Lx = lx / mx) assumes that age is genuinely old (high mx), so a</span></span></span>
-<span class="r-in"><span><span class="co"># short age range with a low terminal mx would produce a nonsensical</span></span></span>
-<span class="r-in"><span><span class="co"># "remaining life expectancy" in the thousands of years.</span></span></span>
-<span class="r-in"><span><span class="va">age</span> <span class="op">&lt;-</span> <span class="fl">0</span><span class="op">:</span><span class="fl">100</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">age</span> <span class="op">&lt;-</span> <span class="fl">0</span><span class="op">:</span><span class="fl">100</span></span></span>
+<span class="r-in"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fl">1e5</span></span></span>
+<span class="r-in"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fl">0.0003</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">0.07</span> <span class="op">*</span> <span class="va">age</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">mx</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  nuts3_code <span class="op">=</span> <span class="st">"ES111"</span>, province_name <span class="op">=</span> <span class="st">"A Coruna"</span>, year <span class="op">=</span> <span class="fl">2023</span>, age <span class="op">=</span> <span class="va">age</span>,</span></span>
-<span class="r-in"><span>  mx_female <span class="op">=</span> <span class="fl">0.0003</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">0.07</span> <span class="op">*</span> <span class="va">age</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  mx_male <span class="op">=</span> <span class="fl">0.00035</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">0.072</span> <span class="op">*</span> <span class="va">age</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  mx_total <span class="op">=</span> <span class="fl">0.00033</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">0.071</span> <span class="op">*</span> <span class="va">age</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  mx_female <span class="op">=</span> <span class="va">m</span>, mx_male <span class="op">=</span> <span class="fl">1.2</span> <span class="op">*</span> <span class="va">m</span>, mx_total <span class="op">=</span> <span class="fl">1.1</span> <span class="op">*</span> <span class="va">m</span>,</span></span>
+<span class="r-in"><span>  d_female <span class="op">=</span> <span class="va">m</span> <span class="op">*</span> <span class="va">e</span>, d_male <span class="op">=</span> <span class="fl">1.2</span> <span class="op">*</span> <span class="va">m</span> <span class="op">*</span> <span class="va">e</span>, d_total <span class="op">=</span> <span class="fl">2.2</span> <span class="op">*</span> <span class="va">m</span> <span class="op">*</span> <span class="va">e</span>,</span></span>
+<span class="r-in"><span>  e_female <span class="op">=</span> <span class="va">e</span>, e_male <span class="op">=</span> <span class="va">e</span>, e_total <span class="op">=</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">e</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">life_expectancy</span><span class="op">(</span><span class="va">mx</span>, province <span class="op">=</span> <span class="st">"A Coruna"</span>, sex <span class="op">=</span> <span class="st">"female"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> All 3 life tables passed validation.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 6</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   nuts3_code province_name  year    e0   e65 sex   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> ES111      A Coruna       <span style="text-decoration: underline;">2</span>023  70.5  15.2 female</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> ES111      A Coruna       <span style="text-decoration: underline;">2</span>023  70.5  15.1 female</span>
 </code></pre></div>
     </div>
   </div>

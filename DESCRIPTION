@@ -1,6 +1,6 @@
 Package: inedemogR
 Title: Tidy Access to Spanish INE Demographic Data
-Version: 0.1.0
+Version: 0.2.0
 Authors@R:
     person("J. R.", "Caro-Barrera", , "jrcaro@uco.es", role = c("aut", "cre", "cph"))
 Description: Provides tidy, harmonized access to demographic data from the
@@ -12,7 +12,7 @@ Description: Provides tidy, harmonized access to demographic data from the
     average age at death in infancy method of Andreev and Kingkade (2015)
     <doi:10.4054/DemRes.2015.33.13>.
 License: MIT + file LICENSE
-URL: https://jrcarob.github.io/inedemogR/, https://github.com/jrcarob/inedemogR_package
+URL: https://carobarrera.com/inedemogR, https://github.com/jrcarob/inedemogR_package
 BugReports: https://github.com/jrcarob/inedemogR_package/issues
 Encoding: UTF-8
 RoxygenNote: 7.3.3

@@ -3,14 +3,13 @@
 two life tables to age-specific contributions, using either Arriaga's
 (1984) or Pollard's (1988) method. Arriaga's is an exact discrete
 decomposition: sum(contribution) recovers e2(0) - e1(0) exactly.
-Pollard's is exact only in the continuous limit; applied to a
-single-year life table, sum(contribution) is a close but not exact
-approximation of e2(0) - e1(0) - the approximation error grows with
-how steeply mortality changes with age (a few percent of the total
-gap under a fast-rising hazard is possible), so treat Arriaga's
-(the default) as the primary result and Pollard's as a cross-check,
-per Ponnapalli (2005)'s finding that the two methods' age patterns
-agree closely without being identical. Use this to answer &quot;how much
+Pollard's is exact in continuous time; here each closed single-year
+interval is integrated with the midpoint rule and the open interval
+exactly under its constant hazard, so sum(contribution) differs from
+e2(0) - e1(0) by a small discretisation residual. The residual is
+returned as an attribute so it can be reported and checked against a
+tolerance; treat Arriaga's method (the default) as the primary result
+and Pollard's as a cross-check. Use this to answer &quot;how much
 of the life-expectancy gap
 between province A and B (or between year Y1 and Y2) comes from
 mortality at each age?&quot; - complementing life_expectancy_summary()/
@@ -33,7 +32,7 @@ two values differ."><meta property="og:image" content="https://carobarrera.com/i
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">inedemogR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
       </span>
     </div>
 
@@ -85,14 +84,13 @@ two values differ."><meta property="og:image" content="https://carobarrera.com/i
 two life tables to age-specific contributions, using either Arriaga's
 (1984) or Pollard's (1988) method. Arriaga's is an exact discrete
 decomposition: <code>sum(contribution)</code> recovers <code>e2(0) - e1(0)</code> exactly.
-Pollard's is exact only in the continuous limit; applied to a
-single-year life table, <code>sum(contribution)</code> is a close but not exact
-approximation of <code>e2(0) - e1(0)</code> - the approximation error grows with
-how steeply mortality changes with age (a few percent of the total
-gap under a fast-rising hazard is possible), so treat Arriaga's
-(the default) as the primary result and Pollard's as a cross-check,
-per Ponnapalli (2005)'s finding that the two methods' age patterns
-agree closely without being identical. Use this to answer "how much
+Pollard's is exact in continuous time; here each closed single-year
+interval is integrated with the midpoint rule and the open interval
+exactly under its constant hazard, so <code>sum(contribution)</code> differs from
+<code>e2(0) - e1(0)</code> by a small discretisation residual. The residual is
+returned as an attribute so it can be reported and checked against a
+tolerance; treat Arriaga's method (the default) as the primary result
+and Pollard's as a cross-check. Use this to answer "how much
 of the life-expectancy gap
 between province A and B (or between year Y1 and Y2) comes from
 mortality at each age?" - complementing <code><a href="life_expectancy_summary.html">life_expectancy_summary()</a></code>/
@@ -129,7 +127,9 @@ over the <em>same set of ages</em> as <code>lt1</code>.</p></dd>
     <h2>Value</h2>
     <p>A tibble with <code>age</code>, <code>contribution</code> (years of the <code>e2(0) - e1(0)</code> gap attributable to mortality differences at that age;
 positive means that age group contributed to a <em>gain</em> from <code>lt1</code> to
-<code>lt2</code>).</p>
+<code>lt2</code>). Attributes <code>e0_difference</code> (the actual <code>e2(0) - e1(0)</code>) and
+<code>residual</code> (<code>e0_difference - sum(contribution)</code>, zero up to rounding
+for Arriaga).</p>
     </div>
 
     <div id="ref-examples">
@@ -143,9 +143,9 @@ positive means that age group contributed to a <em>gain</em> from <code>lt1</cod
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">decomp</span> <span class="op">&lt;-</span> <span class="fu">decompose_life_expectancy</span><span class="op">(</span><span class="va">lt1</span>, <span class="va">lt2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">decomp</span><span class="op">$</span><span class="va">contribution</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 7.522351</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 7.522332</span>
 <span class="r-in"><span><span class="va">lt2</span><span class="op">$</span><span class="va">ex</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="va">lt1</span><span class="op">$</span><span class="va">ex</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 7.522351</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 7.522332</span>
 </code></pre></div>
     </div>
   </div>

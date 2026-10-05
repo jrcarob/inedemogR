@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">inedemogR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
       </span>
     </div>
 
@@ -64,9 +64,93 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.0.0" id="inedemogr-100">inedemogR 1.0.0<a class="anchor" aria-label="anchor" href="#inedemogr-100"></a></h2>
-<ul><li>Initial release.</li>
+<h2 class="page-header" data-toc-text="0.2.0" id="inedemogr-020">inedemogR 0.2.0<a class="anchor" aria-label="anchor" href="#inedemogr-020"></a></h2>
+<p>This release corrects numerical errors in 0.1.0 identified in a methodological audit and validation of the package against the Human Mortality Database protocol and the official tables of the Spanish statistics institute (INE). Several corrections change numerical results; their effect on every number reported in the accompanying article is tabulated by <code>reproducibility/02_manuscript_numbers.R</code> in the GitHub repository.</p>
+<div class="section level3">
+<h3 id="breaking-changes-and-corrected-results-0-2-0">Breaking changes and corrected results<a class="anchor" aria-label="anchor" href="#breaking-changes-and-corrected-results-0-2-0"></a></h3>
+<ul><li>
+<code><a href="../reference/andreev_kingkade_a0.html">andreev_kingkade_a0()</a></code> now implements the sex-specific, three-segment Andreev-Kingkade (2015) formulas of HMD Methods Protocol V6, Table 3. 0.1.0 used Coale-Demeny-style coefficients (e.g. female a0 at m0 = 0.004 was 0.064 instead of 0.141).</li>
+<li>Life tables use <code>ax = 0.5</code> at every age except 0 (0.1.0 used <code>a1 = 0.4</code>); combined-sex a0 is the death-weighted average of the sex-specific values (HMD V6 Eq. 77).</li>
+<li>
+<code><a href="../reference/build_life_tables.html">build_life_tables()</a></code> replaces the unweighted logit regression with the HMD V6 Kannisto model fitted by Poisson maximum likelihood on deaths and exposures at ages 80-99 (parameters constrained to be non-negative), with the data-dependent replacement age Y (100-deaths rule, 80 &lt;= Y &lt;= 95) and smoothed female-exposure weights for the combined-sex table. It now needs the <code>d_*</code> and <code>e_*</code> columns that <code><a href="../reference/compute_death_rates.html">compute_death_rates()</a></code> returns. New arguments <code>kannisto_age</code> and <code>fit_min</code> support sensitivity analysis.</li>
+<li>
+<code><a href="../reference/compute_exposure.html">compute_exposure()</a></code>: the Lexis correction is <code>(D_L - D_U) / 6</code> (HMD V6 Eq. 57) with conventional triangle labels; 0.1.0 used <code>(D_U - D_L) / 2</code> with reversed labels. Only affects deaths supplied with a <code>cohort</code> column; INE deaths use the even split, where the correction is zero.</li>
+<li>European Standard Population 2013 weights sum to 100,000 (95+ = 200); 0.1.0 gave ages 95+ a weight of 600, inflating ASDRs by about 20 per cent.</li>
+<li>Abridged life tables preserve <code>nmx = ndx / nLx</code> in every closed group (Greville <code>nax</code> with the Chiang conversion, constant-hazard fallback); 0.1.0 combined an exponential <code>nqx</code> with a linear <code>nLx</code>.</li>
+<li>
+<code>decompose_life_expectancy(method = "pollard")</code> integrates the open age interval exactly and closed intervals by the midpoint rule; 0.1.0 treated the open interval as a point and recovered only 22.5 per cent of a change confined to it. Both methods return the attributes <code>e0_difference</code> and <code>residual</code>.</li>
+<li>Fertility follows INE’s conventions: exposure is the mean of consecutive January-1 female stocks; births outside 15-49 are folded into ages 15 and 49 instead of dropped; the mean age at childbearing uses mid-points <code>x + 0.5</code>. <code>asfr</code> and <code>asfr_female</code> are now births <strong>per woman</strong> (TFR, GRR and NRR are plain sums); <code>asfr_per_1000</code> is provided for display.</li>
 </ul></div>
+<div class="section level3">
+<h3 id="missing-data-and-validation-0-2-0">Missing data and validation<a class="anchor" aria-label="anchor" href="#missing-data-and-validation-0-2-0"></a></h3>
+<ul><li>An explicit <code>NA</code> death count stays <code>NA</code> (0.1.0 turned it into a zero rate); a province-year with no death records is excluded rather than treated as zero mortality. Ages absent from INE’s deaths table within a reported province-year remain structural zeros.</li>
+<li>
+<code><a href="../reference/build_life_table.html">build_life_table()</a></code> rejects non-contiguous ages and non-finite rates. <code><a href="../reference/build_life_tables.html">build_life_tables()</a></code> withholds province-years with missing exposure (e.g. INE populations top-coded at 85+ before 2002) or too few ages to fit the Kannisto model, and reports them in <code>$failed</code>; <code>$qc</code> is now a tibble.</li>
+<li>
+<code><a href="../reference/validate_life_table.html">validate_life_table()</a></code> and <code><a href="../reference/validate_abridged_life_table.html">validate_abridged_life_table()</a></code> also fail on missing ages, non-finite values, a broken <code>mx = dx / Lx</code> identity, and (full tables) implausible e0; <code><a href="../reference/validate_death_rates.html">validate_death_rates()</a></code> checks age coverage. ASDR is <code>NA</code> unless all ages have finite rates.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="reproducibility-0-2-0">Reproducibility<a class="anchor" aria-label="anchor" href="#reproducibility-0-2-0"></a></h3>
+<ul><li>With <code>use_cache = TRUE</code> and <code>cache_dir = NULL</code>, retrieval now caches in a per-session directory under <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir()</a></code> (0.1.0 silently did not cache).</li>
+<li>Retrieved objects carry a <code>provenance</code> attribute (request, retrieval time, API, package version).</li>
+<li>New opt-in live integration test (<code>INEDEMOGR_LIVE_TESTS=true</code>) and weekly workflow; <code>reproducibility/</code> holds frozen inputs, the validation study against INE’s provincial life tables and fertility indicators, and the manuscript-number scripts.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.1.0" id="inedemogr-010">inedemogR 0.1.0<small>2026-08-23</small><a class="anchor" aria-label="anchor" href="#inedemogr-010"></a></h2>
+<div class="section level3">
+<h3 id="system-a-quick-multi-geography-totals-0-1-0">System A: quick multi-geography totals<a class="anchor" aria-label="anchor" href="#system-a-quick-multi-geography-totals-0-1-0"></a></h3>
+<ul><li>
+<code><a href="../reference/get_ine_demog.html">get_ine_demog()</a></code> retrieves live population, births, and deaths totals from INE via <code><a href="https://inedifusion.github.io/ineapir/reference/get_data_table.html" class="external-link">ineapir::get_data_table()</a></code>, at whichever geographic level (municipality or province) each indicator is actually published at.</li>
+<li>
+<code><a href="../reference/get_ine_geo.html">get_ine_geo()</a></code> retrieves municipality/province geometries via <code>mapSpain</code>, with an option to shift the Canary Islands next to the mainland for compact national maps.</li>
+<li>
+<code><a href="../reference/list_ine_indicators.html">list_ine_indicators()</a></code> and <code><a href="../reference/update_ine_data.html">update_ine_data()</a></code> round out data discovery and local cache refresh.</li>
+<li>
+<code><a href="../reference/plot_ine_map.html">plot_ine_map()</a></code> provides a highlight-region diagnostic map; general choropleths are covered by System B’s <code><a href="../reference/map_indicator.html">map_indicator()</a></code> below.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="system-b-agesex-disaggregated-province-data-and-the-mortality-pipeline-0-1-0">System B: age/sex-disaggregated province data and the mortality pipeline<a class="anchor" aria-label="anchor" href="#system-b-agesex-disaggregated-province-data-and-the-mortality-pipeline-0-1-0"></a></h3>
+<ul><li>
+<code><a href="../reference/get_ine_births.html">get_ine_births()</a></code>, <code><a href="../reference/get_ine_births_by_age.html">get_ine_births_by_age()</a></code>, <code><a href="../reference/get_ine_deaths.html">get_ine_deaths()</a></code>, and <code><a href="../reference/get_ine_population.html">get_ine_population()</a></code> retrieve province-level, age/sex-disaggregated data directly from INE’s Tempus3 API, following the Spanish subnational Human Mortality Database (SHMD) protocol. <code><a href="../reference/get_ine_births_by_age.html">get_ine_births_by_age()</a></code> retrieves single-year age-of-mother birth counts, the input the fertility schedule functions below need.</li>
+<li>
+<code><a href="../reference/compute_exposure.html">compute_exposure()</a></code>, <code><a href="../reference/compute_death_rates.html">compute_death_rates()</a></code>, and <code><a href="../reference/build_life_table.html">build_life_table()</a></code>/ <code><a href="../reference/build_life_tables.html">build_life_tables()</a></code> implement exposure-to-risk, central death rate (1x1, 5x1, age-standardised), and single-year period life table construction per HMD Methods Protocol V6 (Andreev-Kingkade a0 at age 0, Kannisto old-age smoothing).</li>
+<li>
+<code><a href="../reference/build_abridged_life_table.html">build_abridged_life_table()</a></code>/<code><a href="../reference/build_abridged_life_tables.html">build_abridged_life_tables()</a></code> build standard abridged (5-year age group) period life tables directly from the 5x1 central death rates, complementing the single-year tables above - useful for comparing against other agencies’ published abridged tables.</li>
+<li>
+<code><a href="../reference/download_ine_data.html">download_ine_data()</a></code> runs any subset of the pipeline and writes results to CSV and/or HMD-format <code>.txt</code> files for use outside R.</li>
+<li>A <code>validate_*()</code> family (<code><a href="../reference/validate_population.html">validate_population()</a></code>, <code><a href="../reference/validate_births.html">validate_births()</a></code>, <code><a href="../reference/validate_births_by_age.html">validate_births_by_age()</a></code>, <code><a href="../reference/validate_deaths.html">validate_deaths()</a></code>, <code><a href="../reference/validate_deaths_age.html">validate_deaths_age()</a></code>, <code><a href="../reference/validate_exposure.html">validate_exposure()</a></code>, <code><a href="../reference/validate_death_rates.html">validate_death_rates()</a></code>, <code><a href="../reference/validate_life_table.html">validate_life_table()</a></code>, <code><a href="../reference/validate_abridged_life_table.html">validate_abridged_life_table()</a></code>) flags data-quality issues (suppressed cells, non-monotonic life tables, implausible exposure) without failing hard.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="summary-demographic-indicators-0-1-0">Summary demographic indicators<a class="anchor" aria-label="anchor" href="#summary-demographic-indicators-0-1-0"></a></h3>
+<ul><li>
+<code><a href="../reference/age_dependency_ratio.html">age_dependency_ratio()</a></code>, <code><a href="../reference/aging_index.html">aging_index()</a></code>, and <code><a href="../reference/sex_ratio.html">sex_ratio()</a></code> compute population-structure indicators from age-disaggregated province data.</li>
+<li>
+<code><a href="../reference/crude_birth_rate.html">crude_birth_rate()</a></code>, <code><a href="../reference/crude_death_rate.html">crude_death_rate()</a></code>, <code><a href="../reference/general_fertility_rate.html">general_fertility_rate()</a></code>, <code><a href="../reference/infant_mortality_rate.html">infant_mortality_rate()</a></code>, and <code><a href="../reference/rate_of_natural_increase.html">rate_of_natural_increase()</a></code> compute CBR, CDR, GFR, IMR, and RNI.</li>
+<li>
+<code><a href="../reference/age_specific_fertility_rate.html">age_specific_fertility_rate()</a></code>, <code><a href="../reference/total_fertility_rate.html">total_fertility_rate()</a></code>, <code><a href="../reference/mean_age_at_childbearing.html">mean_age_at_childbearing()</a></code>, <code><a href="../reference/gross_reproduction_rate.html">gross_reproduction_rate()</a></code>, and <code><a href="../reference/net_reproduction_rate.html">net_reproduction_rate()</a></code> build the full age-specific fertility schedule (ASFR/TFR/MAC/GRR/NRR) from age-of-mother birth counts - a true total fertility rate, which <code><a href="../reference/crude_birth_rate.html">crude_birth_rate()</a></code>/ <code><a href="../reference/general_fertility_rate.html">general_fertility_rate()</a></code> cannot compute on their own.</li>
+<li>
+<code><a href="../reference/birth_death_ratio.html">birth_death_ratio()</a></code> computes births per death directly from System A’s totals, needing no age breakdown.</li>
+<li>
+<code><a href="../reference/life_expectancy_summary.html">life_expectancy_summary()</a></code> and <code><a href="../reference/life_expectancy.html">life_expectancy()</a></code> extract e0/e65 from a period life table.</li>
+<li>
+<code><a href="../reference/decompose_life_expectancy.html">decompose_life_expectancy()</a></code> attributes a difference in life expectancy at birth between two life tables (two provinces, or one province across two years) to age-specific contributions, via Arriaga’s (1984, exact) and Pollard’s (1988, approximate) methods.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="visualization-0-1-0">Visualization<a class="anchor" aria-label="anchor" href="#visualization-0-1-0"></a></h3>
+<ul><li>
+<code><a href="../reference/plot_population_pyramid.html">plot_population_pyramid()</a></code> and <code><a href="../reference/plot_demog_trend.html">plot_demog_trend()</a></code> provide population pyramid and generic indicator time-series charts.</li>
+<li>
+<code><a href="../reference/map_indicator.html">map_indicator()</a></code> provides a general-purpose choropleth (binned or continuous) for any geography-keyed tibble; <code><a href="../reference/map_life_expectancy.html">map_life_expectancy()</a></code> is a thin wrapper bridging the mortality pipeline’s life tables onto province geometry.</li>
+<li>
+<code><a href="../reference/plot_lexis_diagram.html">plot_lexis_diagram()</a></code> draws an age x year mortality surface with birth-cohort diagonals.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-0-1-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-1-0"></a></h3>
+<ul><li>
+<code>vignette("inedemogR-tutorial")</code> is a single comprehensive tutorial covering data retrieval/cleaning/storage (Part I) and demographic analysis/visualization (Part II), with the exact formulas implemented in code and worked examples reproducing the scripts in <code>examples/</code>.</li>
+</ul></div>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

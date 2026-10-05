@@ -24,7 +24,7 @@ net_reproduction_rate()."><meta property="og:image" content="https://carobarrera
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">inedemogR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
       </span>
     </div>
 
@@ -117,9 +117,13 @@ than <code><a href="get_ine_births.html">get_ine_births()</a></code>'s; caching 
 
 
 <dt id="arg-cache-dir">cache_dir<a class="anchor" aria-label="anchor" href="#arg-cache-dir"></a></dt>
-<dd><p>Directory for cached data. Default <code>NULL</code> means no
-persistent caching (each call re-fetches from INE). Pass a directory,
-e.g. <code>tools::R_user_dir("inedemogR", "cache")</code>, to enable caching.</p></dd>
+<dd><p>Directory for cached data. The default <code>NULL</code> caches
+in a per-session directory under <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir()</a></code>: repeated calls in the same
+session reuse the first download, but nothing persists afterwards. Pass a
+directory, e.g. <code>tools::R_user_dir("inedemogR", "cache")</code>, for a cache
+that persists across sessions. A cache stores the parsed result as
+<code>.rds</code>; refresh it with <code>force = TRUE</code>. Results carry a <code>provenance</code>
+attribute (request, retrieval time in UTC, API, package version).</p></dd>
 
 </dl></div>
     <div id="value">
