@@ -1,0 +1,20 @@
+bibentry(
+  bibtype = "Article",
+  header = "To cite inedemogR in publications, please use:",
+  title = "{inedemogR}: Reproducible retrieval and life-table computation for Spanish subnational demographic data",
+  author = person("J. R.", "Caro-Barrera"),
+  journal = "SoftwareX",
+  year = "2026",
+  pages = "103189",
+  doi = "10.1016/j.softx.2026.103189"
+)
+
+bibentry(
+  bibtype = "Manual",
+  header = "To cite the software version you used:",
+  title = "{inedemogR}: Tidy Access to Spanish INE Demographic Data",
+  author = person("J. R.", "Caro-Barrera"),
+  year = "2026",
+  note = sprintf("R package version %s", meta$Version),
+  url = "https://CRAN.R-project.org/package=inedemogR"
+)

@@ -35,6 +35,10 @@ navbar:
       menu:
       - text: Basic usage of inedemogR
         href: articles/basic-usage.html
+      - text: Gallery
+        href: articles/gallery.html
+      - text: Gallery code
+        href: articles/gallery-code.html
     github:
       icon: fa-github fa-lg
       href: https://github.com/jrcarob/inedemogR_package

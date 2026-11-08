@@ -21,7 +21,7 @@ for the single-year (1x1) equivalent this complements."><meta property="og:image
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">inedemogR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.1</span>
       </span>
     </div>
 
@@ -43,6 +43,12 @@ for the single-year (1x1) equivalent this complements."><meta property="og:image
   </a>
   <ul class="dropdown-menu" role="menu"><li>
       <a href="../articles/basic-usage.html">Basic usage of inedemogR</a>
+    </li>
+    <li>
+      <a href="../articles/gallery.html">Gallery</a>
+    </li>
+    <li>
+      <a href="../articles/gallery-code.html">Gallery code</a>
     </li>
   </ul></li>
 <li>
@@ -108,20 +114,32 @@ list of <code><a href="validate_abridged_life_table.html">validate_abridged_life
 <span class="r-in"><span>  mx_male <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.005</span>, <span class="fl">0.0004</span>, <span class="fl">0.0003</span>, <span class="fl">0.0003</span>, <span class="fl">0.0003</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  mx_total <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.0045</span>, <span class="fl">0.00035</span>, <span class="fl">0.00025</span>, <span class="fl">0.00025</span>, <span class="fl">0.00025</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">start</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">100</span>, by <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mx_female</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.0011</span>, <span class="fl">0.00004</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">0.095</span> <span class="op">*</span> <span class="va">start</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">mx_5x1</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  nuts3_code <span class="op">=</span> <span class="st">"ES111"</span>, province_name <span class="op">=</span> <span class="st">"A Coruna"</span>, year <span class="op">=</span> <span class="fl">2023</span>,</span></span>
-<span class="r-in"><span>  age_group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"00-04"</span>, <span class="st">"100+"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  mx_female <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.0006</span>, <span class="fl">0.35</span><span class="op">)</span>, mx_male <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.0008</span>, <span class="fl">0.4</span><span class="op">)</span>, mx_total <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.0007</span>, <span class="fl">0.38</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  age_group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"%02d-%02d"</span>, <span class="va">start</span><span class="op">[</span><span class="op">-</span><span class="fl">21</span><span class="op">]</span>, <span class="va">start</span><span class="op">[</span><span class="op">-</span><span class="fl">21</span><span class="op">]</span> <span class="op">+</span> <span class="fl">4</span><span class="op">)</span>, <span class="st">"100+"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  mx_female <span class="op">=</span> <span class="va">mx_female</span>, mx_male <span class="op">=</span> <span class="fl">1.4</span> <span class="op">*</span> <span class="va">mx_female</span>, mx_total <span class="op">=</span> <span class="fl">1.2</span> <span class="op">*</span> <span class="va">mx_female</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">alt</span> <span class="op">&lt;-</span> <span class="fu">build_abridged_life_tables</span><span class="op">(</span><span class="va">mx_1x1</span>, <span class="va">mx_5x1</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> All abridged life tables passed validation.</span>
 <span class="r-in"><span><span class="va">alt</span><span class="op">$</span><span class="va">fltper</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 14</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nuts3_code province_name age_group age_start     n     mx    ax      qx     lx</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> ES111      A Coruna      00-04             0     5 0.000<span style="text-decoration: underline;">6</span> 0.635 0.004<span style="text-decoration: underline;">88</span> 1   <span style="color: #949494;">e</span>5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> ES111      A Coruna      100+            100    <span style="color: #BB0000;">NA</span> 0.35   2.86  1       9.95<span style="color: #949494;">e</span>4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 5 more variables: dx &lt;dbl&gt;, Lx &lt;dbl&gt;, Tx &lt;dbl&gt;, ex &lt;dbl&gt;, year &lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 21 × 14</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    nuts3_code province_name age_group age_start     n        mx    ax       qx</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> ES111      A Coruna      00-04             0     5 0.001<span style="text-decoration: underline;">1</span>    0.635 0.004<span style="text-decoration: underline;">88</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> ES111      A Coruna      05-09             5     5 0.000<span style="text-decoration: underline;">064</span>3 2.01  0.000<span style="text-decoration: underline;">322</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> ES111      A Coruna      10-14            10     5 0.000<span style="text-decoration: underline;">103</span>  2.70  0.000<span style="text-decoration: underline;">517</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> ES111      A Coruna      15-19            15     5 0.000<span style="text-decoration: underline;">166</span>  2.70  0.000<span style="text-decoration: underline;">831</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> ES111      A Coruna      20-24            20     5 0.000<span style="text-decoration: underline;">267</span>  2.70  0.001<span style="text-decoration: underline;">34</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> ES111      A Coruna      25-29            25     5 0.000<span style="text-decoration: underline;">430</span>  2.70  0.002<span style="text-decoration: underline;">15</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> ES111      A Coruna      30-34            30     5 0.000<span style="text-decoration: underline;">692</span>  2.70  0.003<span style="text-decoration: underline;">45</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> ES111      A Coruna      35-39            35     5 0.001<span style="text-decoration: underline;">11</span>   2.70  0.005<span style="text-decoration: underline;">55</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> ES111      A Coruna      40-44            40     5 0.001<span style="text-decoration: underline;">79</span>   2.69  0.008<span style="text-decoration: underline;">90</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> ES111      A Coruna      45-49            45     5 0.002<span style="text-decoration: underline;">88</span>   2.69  0.014<span style="text-decoration: underline;">3</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 11 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 6 more variables: lx &lt;dbl&gt;, dx &lt;dbl&gt;, Lx &lt;dbl&gt;, Tx &lt;dbl&gt;, ex &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   year &lt;dbl&gt;</span></span>
 </code></pre></div>
     </div>
   </div>

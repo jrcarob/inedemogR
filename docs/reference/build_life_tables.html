@@ -18,7 +18,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">inedemogR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.1</span>
       </span>
     </div>
 
@@ -40,6 +40,12 @@
   </a>
   <ul class="dropdown-menu" role="menu"><li>
       <a href="../articles/basic-usage.html">Basic usage of inedemogR</a>
+    </li>
+    <li>
+      <a href="../articles/gallery.html">Gallery</a>
+    </li>
+    <li>
+      <a href="../articles/gallery-code.html">Gallery code</a>
     </li>
   </ul></li>
 <li>
@@ -115,13 +121,15 @@ exposures at ages 80-99 by Poisson maximum likelihood, with both
 parameters constrained to be non-negative so smoothed rates cannot fall
 with age.</p></li>
 <li><p>Combined-sex rates at ages <code>Y</code>+ weight the smoothed sex-specific rates by
-a smoothed female share of exposure; combined-sex a0 is the
+a smoothed female share of exposure, fitted on the same ages as the
+Kannisto model (<code>fit_min</code>-99); combined-sex a0 is the
 death-weighted average of the sex-specific Andreev-Kingkade values.</p></li>
 </ul><p>Deviations from HMD V6, all forced by the INE inputs: (i) exposure uses an
 even Lexis-triangle split because INE deaths are not classified by cohort
 (see <code><a href="compute_exposure.html">compute_exposure()</a></code>); (ii) the Kannisto fit uses ages 80-99 because
 INE's single-year detail ends at an open interval 100+, whereas HMD fits to
-80-110+; (iii) no birth-by-month exposure correction.</p>
+80-110+, and the female exposure share is smoothed on the same ages; (iii)
+no birth-by-month exposure correction.</p>
     </div>
     <div id="failure-behaviour">
     <h2>Failure behaviour</h2>

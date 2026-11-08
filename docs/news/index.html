@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">inedemogR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.1</span>
       </span>
     </div>
 
@@ -39,6 +39,12 @@
   </a>
   <ul class="dropdown-menu" role="menu"><li>
       <a href="../articles/basic-usage.html">Basic usage of inedemogR</a>
+    </li>
+    <li>
+      <a href="../articles/gallery.html">Gallery</a>
+    </li>
+    <li>
+      <a href="../articles/gallery-code.html">Gallery code</a>
     </li>
   </ul></li>
 <li>
@@ -64,7 +70,24 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.2.0" id="inedemogr-020">inedemogR 0.2.0<a class="anchor" aria-label="anchor" href="#inedemogr-020"></a></h2>
+<h2 class="page-header" data-toc-text="0.2.1" id="inedemogr-021">inedemogR 0.2.1<small>2026-10-20</small><a class="anchor" aria-label="anchor" href="#inedemogr-021"></a></h2>
+<p>Corrects two input checks and one smoothing detail reported in the second round of the methodological review. Neither input-check defect affects results built from complete INE data with the default even Lexis split.</p>
+<div class="section level3">
+<h3 id="bug-fixes-0-2-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-2-1"></a></h3>
+<ul><li>
+<code><a href="../reference/build_abridged_life_table.html">build_abridged_life_table()</a></code>, <code><a href="../reference/build_abridged_life_tables.html">build_abridged_life_tables()</a></code> and <code><a href="../reference/validate_abridged_life_table.html">validate_abridged_life_table()</a></code> now reject age groups that are missing, duplicated, overlapping or unparseable, a schedule that does not start at <code>"00-04"</code> or does not end in exactly one open interval, and single-year infant input that does not hold ages 0-4 exactly once. Previously such schedules were tabulated and passed validation.</li>
+<li>
+<code><a href="../reference/compute_exposure.html">compute_exposure()</a></code> with a <code>cohort</code> column keeps an explicit <code>NA</code> triangle death count as unavailable: that cell’s exposure is <code>NA</code>, a new column <code>is_missing_deaths</code> flags it, and validation fails (<code>missing_triangle_deaths</code>). An absent triangle row is still a structural zero. Previously the <code>NA</code> became zero deaths and validation passed. The cohort path also no longer fails when one triangle is absent from the whole input.</li>
+<li>
+<code><a href="../reference/build_life_tables.html">build_life_tables()</a></code>: the smoothed female share of exposure used for the combined-sex table is fitted on the same ages as the Kannisto model (<code>fit_min</code>-99), so the pooled 100+ group is no longer treated as a single age and the window follows <code>fit_min</code>. Combined-sex life expectancy changes by less than 0.01 years.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-0-2-1">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-2-1"></a></h3>
+<ul><li>Abridged-table examples use complete 5-year schedules and show the new checks.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.2.0" id="inedemogr-020">inedemogR 0.2.0<small>2026-10-05</small><a class="anchor" aria-label="anchor" href="#inedemogr-020"></a></h2>
 <p>This release corrects numerical errors in 0.1.0 identified in a methodological audit and validation of the package against the Human Mortality Database protocol and the official tables of the Spanish statistics institute (INE). Several corrections change numerical results; their effect on every number reported in the accompanying article is tabulated by <code>reproducibility/02_manuscript_numbers.R</code> in the GitHub repository.</p>
 <div class="section level3">
 <h3 id="breaking-changes-and-corrected-results-0-2-0">Breaking changes and corrected results<a class="anchor" aria-label="anchor" href="#breaking-changes-and-corrected-results-0-2-0"></a></h3>

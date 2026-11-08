@@ -21,7 +21,7 @@ triangles."><meta property="og:image" content="https://carobarrera.com/inedemogR
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">inedemogR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.1</span>
       </span>
     </div>
 
@@ -43,6 +43,12 @@ triangles."><meta property="og:image" content="https://carobarrera.com/inedemogR
   </a>
   <ul class="dropdown-menu" role="menu"><li>
       <a href="../articles/basic-usage.html">Basic usage of inedemogR</a>
+    </li>
+    <li>
+      <a href="../articles/gallery.html">Gallery</a>
+    </li>
+    <li>
+      <a href="../articles/gallery-code.html">Gallery code</a>
     </li>
   </ul></li>
 <li>
@@ -96,7 +102,8 @@ triangles.</p>
     <h2>Value</h2>
     <p><code>list(data, qc)</code>: <code>data</code> is a tibble with columns <code>nuts3_code</code>,
 <code>province_name</code>, <code>year</code>, <code>age</code>, <code>female</code>, <code>male</code>, <code>total</code> (exposure),
-<code>is_boundary_year</code>, <code>is_missing_source_pop</code>; <code>qc</code> is the output of
+<code>is_boundary_year</code>, <code>is_missing_source_pop</code>, <code>is_missing_deaths</code>; <code>qc</code>
+is the output of
 <code><a href="validate_exposure.html">validate_exposure()</a></code>.</p>
     </div>
     <div id="details">
@@ -108,6 +115,11 @@ two January-1 populations. This is an adaptation of the HMD protocol,
 which splits 1x1 deaths by regression (Appendix A) and corrects for the
 monthly distribution of births (Appendix E); its effect is quantified in
 the package's validation study (see <code>reproducibility/</code>).</p>
+<p>With a <code>cohort</code> column, a triangle with no death row is a structural zero,
+but an explicit <code>NA</code> count is unavailable: that cell's exposure is <code>NA</code>,
+it is flagged with <code>is_missing_deaths = TRUE</code>, and validation fails. With
+the even split the correction term is zero, so missing counts do not
+affect exposure (they propagate through <code><a href="compute_death_rates.html">compute_death_rates()</a></code> instead).</p>
 <p>If <code>P(x,t+1)</code> is unavailable for a year that is kept, exposure falls back
 to <code>P(x,t)</code> and the row is flagged with <code>is_boundary_year = TRUE</code>.</p>
 <p>Death registration lags population estimates by about a year, so
@@ -136,12 +148,12 @@ for that year, and downstream a nonsensical inflated life expectancy.</p>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>No cohort column in `deaths`: splitting deaths evenly between Lexis triangles, so exposure is the mean of the two January-1 populations (the HMD V6 Eq. 57 triangle correction is zero).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> All exposure validation checks passed.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $data</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 9</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 10</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   nuts3_code province_name  year   age female  male total is_boundary_year</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>           </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> ES111      A Coruna       <span style="text-decoration: underline;">2</span>022     0   102.  108.   210 FALSE           </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> ES111      A Coruna       <span style="text-decoration: underline;">2</span>023     0   105   110    215 TRUE            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 1 more variable: is_missing_source_pop &lt;lgl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 2 more variables: is_missing_source_pop &lt;lgl&gt;, is_missing_deaths &lt;lgl&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $qc</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $qc$passed</span>

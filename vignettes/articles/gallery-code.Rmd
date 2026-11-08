@@ -1,0 +1,126 @@
+---
+title: "Gallery code"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+This article shows the `inedemogR` code behind each figure in the
+[Gallery](gallery.html): retrieving the data and computing the indicators.
+The chunks are not run here because they need the live INE API. Styling
+(colours, labels, layout) is plain `ggplot2`, `sf` and `patchwork` code and
+is left out.
+
+## Setup and caching
+
+Every figure starts from the same few downloads. Pass a `cache_dir` so that
+each table is fetched from INE once and read from disk afterwards; the first
+run takes several minutes.
+
+```{r}
+library(inedemogR)
+library(dplyr)
+
+cache <- "cache"
+pop        <- get_ine_population(cache_dir = cache)$data
+births     <- get_ine_births(cache_dir = cache)$data
+births_age <- get_ine_births_by_age(n_periods = 30, cache_dir = cache)$data
+deaths     <- get_ine_deaths(cache_dir = cache)
+```
+
+All four return one row per province, year and (where relevant) single year
+of age, with `female`, `male` and `total` columns.
+
+## Natural change by province
+
+Crude birth and death rates per 1,000 residents, then their difference.
+
+```{r}
+rni <- rate_of_natural_increase(
+  crude_birth_rate(births, pop),
+  crude_death_rate(deaths$data_provinces, pop)
+)
+rni_2024 <- filter(rni, year == 2024)
+```
+
+`get_ine_geo("province")` returns the province polygons (with the Canary
+Islands moved next to the peninsula), ready to join and draw with
+`ggplot2::geom_sf()`.
+
+## Spain as a whole: pool, then compute
+
+The figures for all of Spain pool the counts over the 52 provinces first and
+compute the rate after. Averaging the provincial rates would weight a small
+province the same as Madrid.
+
+```{r}
+spain <- function(df, cols) {
+  df |>
+    summarise(across(all_of(cols), sum), .by = c(year, age, any_of("age_group"))) |>
+    mutate(nuts3_code = "ES", province_name = "Spain")
+}
+```
+
+## Total fertility rate by province
+
+Age-specific fertility rates use births by single year of the mother's age
+over mid-year women (the mean of the 1 January stocks of year *t* and *t* + 1),
+so the population must include the year after the last one you want.
+
+```{r}
+years <- c(2000, 2024)
+b <- filter(births_age, year %in% years)
+p <- filter(pop, year %in% c(years, years + 1))
+
+tfr_prov  <- total_fertility_rate(age_specific_fertility_rate(b, p))
+tfr_spain <- total_fertility_rate(age_specific_fertility_rate(
+  spain(b, c("female", "total")), spain(p, "female")
+))
+```
+
+## Population pyramid
+
+`plot_population_pyramid()` adds up the provinces and returns a `ggplot`
+object, so further layers (here the 2002 outline) go on with `+`.
+
+```{r}
+plot_population_pyramid(pop, 2025)
+```
+
+## Age-specific fertility rates over time
+
+Same function as for the TFR, for all of Spain and every year. For five-year
+groups, add up births and women within each group and divide; do not average
+the single-year rates.
+
+```{r}
+asfr <- age_specific_fertility_rate(
+  spain(filter(births_age, year >= 1996), c("female", "total")),
+  spain(pop, "female")
+)
+tfr <- total_fertility_rate(asfr)
+
+asfr5 <- asfr |>
+  mutate(group = sprintf("%d-%d", age %/% 5 * 5, age %/% 5 * 5 + 4)) |>
+  summarise(asfr = 1000 * sum(births) / sum(women), .by = c(group, year))
+```
+
+## Lexis surface of mortality
+
+Exposure follows the Human Mortality Database protocol: Lexis-triangle
+deaths combined with the 1 January stocks. Death rates by single age and year
+come out as `mx_1x1`, which `plot_lexis_diagram()` draws for one sex.
+
+```{r}
+d <- deaths$data_provinces |> filter(year >= min(pop$year))
+d_es   <- spain(d, c("female", "male", "total"))
+pop_es <- spain(pop, c("female", "male", "total"))
+
+mx <- compute_death_rates(d_es, compute_exposure(pop_es, d_es)$data)$mx_1x1
+plot_lexis_diagram(mx, province = "Spain", sex = "female")
+```
+
+Before 2002 INE published population above age 84 only as one open group,
+so those cells have no rate; the Gallery figure shows them in grey.
